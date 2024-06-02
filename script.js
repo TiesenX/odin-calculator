@@ -3,17 +3,19 @@ let buttons = document.getElementsByTagName("button");
 const screen = document.querySelector(".screen");
 const body = document.querySelector("body");
 
-let DISP = "0"
-let LEFT;
-let operand;
-let RIGHT;
+let LEFT = "0";
+let operand = "";
+let RIGHT = "";
 
-function operate(){
 
+function operate(left, right, op){
+  str = `${left}${op}${right}`
+  return Function(`'use strict'; return (${str})`)()
+  
 }
 
-function updateScreen(){
-  screen.textContent = DISP;
+function updateScreen(value){
+  screen.textContent = value;
 }
 
 function clearEffect(){
@@ -34,7 +36,18 @@ function addButtonsEvent(buttons) {
       buttons[i].addEventListener("click", (e) => {
         clearEffect();
         buttons[i].classList.toggle("toggle-click");
-        operand = buttons[i].textContent;
+        // operand = buttons[i].textContent;
+        if (RIGHT === "") {
+          operand = buttons[i].textContent;
+          console.log(`here ${LEFT}${operand}${RIGHT}`);
+        }
+        else {
+          LEFT = `${operate(LEFT, RIGHT, operand)}`;
+          operand = buttons[i].textContent;
+          RIGHT = "";
+          updateScreen(LEFT);
+          console.log(`here1 ${LEFT}${operand}${RIGHT}`);
+        }
       });
     }
     else {
@@ -44,7 +57,39 @@ function addButtonsEvent(buttons) {
       });
       buttons[i].addEventListener("mouseup", () => {
         buttons[i].classList.toggle("toggle-click"); 
-        document.releaseCap
+        if (buttons[i].classList.contains("number") || buttons[i].classList.contains("zero")){
+          if (operand !== "") {
+            RIGHT += buttons[i].textContent;
+            updateScreen(RIGHT);
+            console.log(`${LEFT}${operand}${RIGHT}`);
+          } else {
+            if (LEFT === "0") LEFT = buttons[i].textContent;
+            else LEFT += buttons[i].textContent;
+
+            updateScreen(LEFT);
+            console.log(`${LEFT}${operand}${RIGHT}`);
+          }
+        }
+        else if (buttons[i].textContent === "=") {
+          if (operand !== ""){
+            if (RIGHT === "") LEFT = operate(LEFT, LEFT, operand);
+          
+            else LEFT = operate(LEFT, RIGHT, operand);
+            console.log(`${LEFT}${operand}${RIGHT}`);
+            operand = "";
+            RIGHT = "";
+            updateScreen(LEFT);
+          }
+        }
+
+        else {
+          if (buttons[i].textContent === "AC") {
+            LEFT = "0";
+            operand = "";
+            RIGHT = "";
+            updateScreen(LEFT);
+          }
+        }
       });
     }
 
@@ -53,5 +98,5 @@ function addButtonsEvent(buttons) {
 
 
 
-updateScreen();
+updateScreen(LEFT);
 addButtonsEvent(buttons);
