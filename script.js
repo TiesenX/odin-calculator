@@ -6,12 +6,17 @@ const body = document.querySelector("body");
 let LEFT = "0";
 let operand = "";
 let RIGHT = "";
+let equal_pressed = false;
 
 
 function operate(left, right, op){
   str = `${left}${op}${right}`
   return Function(`'use strict'; return (${str})`)()
   
+}
+
+function roundToTwo(num) {
+  return +(Math.round(num + "e+11")  + "e-11");
 }
 
 function updateScreen(value){
@@ -63,7 +68,10 @@ function addButtonsEvent(buttons) {
             updateScreen(RIGHT);
             console.log(`${LEFT}${operand}${RIGHT}`);
           } else {
-            if (LEFT === "0") LEFT = buttons[i].textContent;
+            if (LEFT === "0" || equal_pressed) {
+              LEFT = buttons[i].textContent;
+              equal_pressed = false;
+            }
             else LEFT += buttons[i].textContent;
 
             updateScreen(LEFT);
@@ -73,12 +81,12 @@ function addButtonsEvent(buttons) {
         else if (buttons[i].textContent === "=") {
           if (operand !== ""){
             if (RIGHT === "") LEFT = operate(LEFT, LEFT, operand);
-          
             else LEFT = operate(LEFT, RIGHT, operand);
             console.log(`${LEFT}${operand}${RIGHT}`);
             operand = "";
             RIGHT = "";
             updateScreen(LEFT);
+            equal_pressed = true;
           }
         }
 
@@ -89,14 +97,26 @@ function addButtonsEvent(buttons) {
             RIGHT = "";
             updateScreen(LEFT);
           }
+          else if (buttons[i].textContent === "+/-"){
+            if (RIGHT !== "" && RIGHT !== "0") {
+              RIGHT = operate(RIGHT, "-1", "*");
+              updateScreen(RIGHT);
+            }
+            else if (operand !== "") {
+              RIGHT = operate(LEFT, "-1", "*");
+              updateScreen(RIGHT);
+            }
+            else if (LEFT !== "" && LEFT !== "0"){
+              LEFT = operate(LEFT, "-1", "*");
+              updateScreen(LEFT);
+            }
+          }
         }
       });
     }
 
   }
 }
-
-
 
 updateScreen(LEFT);
 addButtonsEvent(buttons);
